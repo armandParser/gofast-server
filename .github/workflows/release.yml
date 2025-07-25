@@ -29,14 +29,18 @@ jobs:
         if [[ $GITHUB_REF == refs/tags/* ]]; then
           VERSION=${GITHUB_REF#refs/tags/}
         else
-          VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+          VERSION=$(git describe --tags --always 2>/dev/null || echo "dev")
         fi
+        # Clean version for file names (remove any git suffixes)
+        CLEAN_VERSION=$(echo "$VERSION" | sed 's/-g[0-9a-f]*$//' | sed 's/-dirty$//')
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "CLEAN_VERSION=$CLEAN_VERSION" >> $GITHUB_OUTPUT
         echo "Building version: $VERSION"
+        echo "Clean version for files: $CLEAN_VERSION"
 
     - name: Build binaries for all platforms
       run: |
-        export VERSION=${{ steps.version.outputs.VERSION }}
+        export VERSION=${{ steps.version.outputs.CLEAN_VERSION }}
         make build-all
 
     - name: Create release archives
@@ -46,6 +50,8 @@ jobs:
       run: |
         cd bin/releases
         sha256sum * > checksums.txt
+        echo "Generated files:"
+        ls -la
         cat checksums.txt
 
     - name: Create Release
@@ -86,10 +92,7 @@ jobs:
           gofast-server-windows-amd64.exe --host=0.0.0.0 --port=6379
           ```
           
-          ### 🐳 Docker
-          ```bash
-          docker run -p 6379:6379 ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
-          ```
+
           
           ### 📊 Performance
           - **Throughput**: 100k+ operations/second
@@ -118,8 +121,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.VERSION }}-linux-amd64.tar.gz
-        asset_name: gofast-server-${{ steps.version.outputs.VERSION }}-linux-amd64.tar.gz
+        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-linux-amd64.tar.gz
+        asset_name: gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-linux-amd64.tar.gz
         asset_content_type: application/gzip
 
     - name: Upload Linux ARM64
@@ -128,8 +131,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.VERSION }}-linux-arm64.tar.gz
-        asset_name: gofast-server-${{ steps.version.outputs.VERSION }}-linux-arm64.tar.gz
+        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-linux-arm64.tar.gz
+        asset_name: gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-linux-arm64.tar.gz
         asset_content_type: application/gzip
 
     - name: Upload Windows AMD64
@@ -138,8 +141,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.VERSION }}-windows-amd64.zip
-        asset_name: gofast-server-${{ steps.version.outputs.VERSION }}-windows-amd64.zip
+        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-windows-amd64.zip
+        asset_name: gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-windows-amd64.zip
         asset_content_type: application/zip
 
     - name: Upload macOS AMD64
@@ -148,8 +151,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.VERSION }}-darwin-amd64.tar.gz
-        asset_name: gofast-server-${{ steps.version.outputs.VERSION }}-darwin-amd64.tar.gz
+        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-darwin-amd64.tar.gz
+        asset_name: gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-darwin-amd64.tar.gz
         asset_content_type: application/gzip
 
     - name: Upload macOS ARM64
@@ -158,8 +161,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.VERSION }}-darwin-arm64.tar.gz
-        asset_name: gofast-server-${{ steps.version.outputs.VERSION }}-darwin-arm64.tar.gz
+        asset_path: ./bin/releases/gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-darwin-arm64.tar.gz
+        asset_name: gofast-server-${{ steps.version.outputs.CLEAN_VERSION }}-darwin-arm64.tar.gz
         asset_content_type: application/gzip
 
     - name: Upload checksums
