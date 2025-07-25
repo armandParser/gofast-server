@@ -1,0 +1,28 @@
+# GoFast Server Configuration
+
+# Server settings
+host: "0.0.0.0"        # Bind to all interfaces
+port: 6379             # Default Redis port
+
+# Performance settings
+max_memory: "2GB"      # Maximum memory usage
+max_clients: 10000     # Maximum concurrent clients
+timeout: "30s"         # Client timeout
+
+# Logging
+log_level: "info"      # trace, debug, info, warn, error, fatal
+log_format: "text"     # text or json
+
+# Persistence (optional)
+enable_persist: false
+save_interval: "300s"  # Save every 5 minutes
+data_dir: "./data"     # Data directory
+
+# Security (optional)
+require_auth: false
+password: ""           # Set password if require_auth is true
+
+# Advanced settings
+tcp_keepalive: true
+read_timeout: "30s"
+write_timeout: "30s"
