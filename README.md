@@ -1,3 +1,5 @@
+# This is a fully vibe-coded redis clone in Go, because why not? Is it good code? No idea. Is it performant? Claude says it is!
+
 ## 📖 API Documentation# GoFast Server 🚀
 
 [![Release](https://img.shields.io/github/v/release/armandParser/gofast-server)](https://github.com/armandParser/gofast-server/releases)
